@@ -950,7 +950,17 @@ Qed.
        ([::]), [snoc], and [app] ([++]).  
      - Prove it. *) 
 
-(* FILL IN HERE *)
+Theorem list_design : forall (l1 l2: natlist), forall (n: nat),
+   (snoc l1 n) ++ l2 = l1 ++ (cons n l2).
+Proof.
+  intros l1 l2 n.
+  replace (cons n l2) with ([n] ++ l2).
+  rewrite snoc_append.
+  rewrite app_assoc.
+  reflexivity.
+  Case "[n] ++ l2 = (cons n l2)".
+    reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced (bag_proofs)  *)
@@ -960,7 +970,8 @@ Qed.
 Theorem count_member_nonzero : forall (s : bag),
   ble_nat 1 (count 1 (1 :: s)) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  reflexivity.
+Qed.
 
 (** The following lemma about [ble_nat] might help you in the next proof. *)
 
@@ -976,14 +987,46 @@ Proof.
 Theorem remove_decreases_count: forall (s : bag),
   ble_nat (count 0 (remove_one 0 s)) (count 0 s) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros s.
+  induction s as [| n' s'].
+  Case "s = nil".
+    reflexivity.
+  Case "s = n' s'".
+    simpl (count 0 (remove_one 0 (n' :: s'))).
+    simpl (count 0 (n' :: s')).
+    destruct n' as [| n''].
+      SCase "0". 
+        simpl.
+        rewrite ble_n_Sn.
+        reflexivity.
+      SCase "S n''".
+        simpl.
+        rewrite IHs'.
+        reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 3 stars, optional (bag_count_sum)  *)  
 (** Write down an interesting theorem about bags involving the
     functions [count] and [sum], and prove it.*)
 
-(* FILL IN HERE *)
+Theorem bag_count_sum: forall (s1 s2 : bag), forall (n : nat),
+  (count n (sum s1 s2)) = (count n s1) + (count n s2).
+Proof.
+  intros s1 s2 n.
+  induction s1 as [| n' s'].
+    Case "nil".
+      reflexivity.
+    Case "n' :: s'".
+      simpl.
+      destruct (beq_nat n' n).
+        SCase "true".
+          rewrite IHs'.
+          reflexivity.
+        SCase "false".
+          rewrite IHs'.
+          reflexivity.
+Qed.
 (** [] *)
 
 (** **** Exercise: 4 stars, advanced (rev_injective)  *)
@@ -994,7 +1037,16 @@ Proof.
 There is a hard way and an easy way to solve this exercise.
 *)
 
-(* FILL IN HERE *)
+Theorem rev_injective: forall (l1 l2 : natlist),
+  rev l1 = rev l2 -> l1 = l2.
+Proof.
+  intros l1 l2 H.
+  rewrite <- (rev_involutive l1).
+  rewrite H.
+  rewrite -> (rev_involutive l2).
+  reflexivity.
+Qed.
+
 (** [] *)
 
 
